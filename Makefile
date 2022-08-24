@@ -4,7 +4,10 @@ DOXYGEN = doxygen
 EXECUTABLE = bin
 
 
-SRCS = main.cpp
+SRCS = 	main.cpp \
+		text/read.cpp \
+		text/write.cpp \
+		text/sort.cpp
 
 INCLUDES =
 
