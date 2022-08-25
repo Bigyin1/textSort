@@ -8,11 +8,11 @@ SRCS = 	main.cpp \
 		text/read.cpp \
 		text/write.cpp \
 		text/sort.cpp \
-		text/text.cpp
+		text/free.cpp
 
 INCLUDES =
 
-CPPFLAGS = -g -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall \
+CPPFLAGS = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall \
 	-Wextra -Weffc++ -Waggressive-loop-optimizations \
 	-Wc++14-compat -Wmissing-declarations -Wcast-align \
 	-Wcast-qual -Wchar-subscripts -Wconditionally-supported \

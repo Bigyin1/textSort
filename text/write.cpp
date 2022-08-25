@@ -5,14 +5,15 @@
 
 
 
-void writeTextToStream(text *t, FILE *s) {
+textError writeTextToStream(text *t, FILE *s) {
     assert(t != NULL && s != NULL);
 
-    for (size_t i = 0; i < t->linesNumber; i++) {
-        if (fputs(t->lines[i], s) == EOF) {
-            fprintf(stderr, "something went wrong: %s\n", strerror(errno));
+    for (size_t i = 0; i < t->linesCount; i++) {
+        if (fputs(t->textLines[i].originalLine, s) == EOF) {
+            return E_WRITE;
         }
     }
-    fflush(s);
 
+    fflush(s);
+    return E_OK;
 }

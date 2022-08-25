@@ -12,19 +12,32 @@ enum textError
 {
     E_OK,
     E_ALLOC,
-    E_NO_DATA,
+    E_READ,
+    E_WRITE,
 };
 
 typedef enum textError textError;
 
 
 /**
+ * @brief Holds text line w/ metadata.
+ */
+struct line
+{
+    char *processedLine;
+    char *originalLine;
+
+};
+
+typedef struct line line;
+
+/**
  * @brief Holds text data.
  */
 struct text
 {
-    char **lines;
-    size_t linesNumber;
+    line *textLines;
+    size_t linesCount;
     size_t linesCapacity;
 };
 
@@ -36,7 +49,7 @@ textError readTextFromStream(text *t, FILE *s);
 
 void sortText(text *t);
 
-void writeTextToStream(text *t, FILE *s);
+textError writeTextToStream(text *t, FILE *s);
 
 void freeText(text *t);
 

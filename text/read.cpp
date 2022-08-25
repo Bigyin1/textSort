@@ -4,8 +4,8 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "text.hpp"
-
 
 
 /**
@@ -14,55 +14,100 @@
  *  @param [in] s File stream to read from
  *  @return  E_OK on success, E_NO_DATA on E_ALLOC
  */
-static ssize_t readLineFromStream(char **retLine, FILE *s) {
+static textError readLineFromStream(line *retLine, FILE *s) {
     assert(retLine != NULL && s != NULL);
 
-    char *line = NULL;
+    char *rawLine = NULL;
     size_t n = 0;
 
-    errno = 0;
-
-    ssize_t c = getline(&line, &n, s);
+    ssize_t c = getline(&rawLine, &n, s);
     if (c == -1) {
-        assert(errno != EINVAL);
+        free(rawLine);
+        retLine->originalLine = NULL;
+
         if (errno == ENOMEM)
             return E_ALLOC;
+        if (errno == EINVAL)
+            return E_READ;
 
-        return E_NO_DATA;
+        return E_OK;
     }
 
-    *retLine = line;
-
+    retLine->originalLine = rawLine;
     return E_OK;
 }
 
-static bool trimWhiteSpaces()
+
+/**
+ *  @brief Trims spaces from start of line
+ *  Sets trimmed line to l->processedLine
+ *  @param  line Pointer to line
+ */
+static void processLine(line *l) {
+
+    char *lineStart = l->originalLine;
+
+    while(isspace(*lineStart))
+        ++lineStart;
+
+    if (*lineStart  == '\0') {
+        free(l->originalLine);
+        l->originalLine = NULL;
+        return;
+    }
+
+    l->processedLine = lineStart;
+
+}
+
+
+static textError growLines(text *t) {
+    assert(t != NULL);
+
+    const size_t capMultFactor = 2;
+
+    t->linesCapacity *= capMultFactor;
+    line *newLines = (line *)reallocarray(t->textLines,
+            sizeof(line), t->linesCapacity);
+    if (newLines == NULL)
+        return E_ALLOC;
+
+    if (newLines != t->textLines)
+        memset(newLines + t->linesCount, 0,
+         sizeof(line) * (t->linesCapacity - t->linesCount));
+
+    t->textLines = newLines;
+    return E_OK;
+}
 
 
 textError readTextFromStream(text *t, FILE *s) {
     assert(t != NULL && s != NULL);
 
     const size_t initCapacity = 16;
-    const size_t capMultFactor = 2;
 
-
-    t->linesNumber = 0;
+    t->linesCount = 0;
     t->linesCapacity = initCapacity;
-    t->lines = (char **)realloc(NULL, sizeof(char*) * t->linesCapacity);
+    t->textLines = (line *)calloc(sizeof(line), t->linesCapacity);
+    if (t->textLines == NULL)
+        return E_ALLOC;
 
     while (!feof(s)) {
-        textError readErr = readLineFromStream(t->lines + t->linesNumber, s);
-        if (readErr == E_NO_DATA)
-            break;
+        textError readErr = readLineFromStream(&t->textLines[t->linesCount], s);
         if (readErr != E_OK)
             return readErr;
 
-        trimWhiteSpaces();
-        ++t->linesNumber;
+        if (t->textLines[t->linesCount].originalLine == NULL)
+            break;
 
-        if (t->linesNumber == t->linesCapacity) {
-            t->linesCapacity *= capMultFactor;
-            t->lines = (char **)realloc(t->lines, sizeof(char*) * t->linesCapacity);
+        processLine(&t->textLines[t->linesCount]);
+        if (t->textLines[t->linesCount].originalLine != NULL)
+            ++t->linesCount;
+
+        if (t->linesCount == t->linesCapacity) {
+            textError err = growLines(t);
+            if (err != E_OK)
+                return err;
         }
     }
 

@@ -2,4 +2,4 @@ build
 docs
 deps
 .vscode
-test*
+testOut

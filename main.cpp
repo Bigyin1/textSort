@@ -3,16 +3,30 @@
 
 int main(int argc, char **)
 {
-  text t = {.lines = NULL, .linesNumber = 0, .linesCapacity = 0};
+  text t = {.textLines = NULL, .linesCount = 0, .linesCapacity = 0};
 
-  FILE *f = fopen("test", "r");
-  FILE *fo = fopen("testOut", "w");
-  readTextFromStream(&t, f);
+  FILE *fi =  fopen("testdata/test", "r");
+  FILE *fo =  fopen("testOut", "w");
+  textError err = readTextFromStream(&t, fi);
+  if (err != E_OK) {
+    //print err;
+    freeText(&t);
+    return 1;
+  }
 
   sortText(&t);
 
-  writeTextToStream(&t, fo);
+  err = writeTextToStream(&t, fo);
+  if (err != E_OK) {
+    //print err;
+    freeText(&t);
+    return 1;
+  }
 
   freeText(&t);
 
+  fclose(fi);
+  fclose(fo);
+
+  return 0;
 }
