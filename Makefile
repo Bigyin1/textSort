@@ -7,7 +7,8 @@ EXECUTABLE = bin
 SRCS = 	main.cpp \
 		text/read.cpp \
 		text/write.cpp \
-		text/sort.cpp
+		text/sort.cpp \
+		text/text.cpp
 
 INCLUDES =
 

@@ -6,6 +6,18 @@
 
 
 /**
+ * @brief Holds error number.
+ */
+enum textError
+{
+    E_OK,
+    E_ALLOC,
+};
+
+typedef enum textError textError;
+
+
+/**
  * @brief Holds text data.
  */
 struct text
@@ -19,11 +31,13 @@ typedef struct text text;
 
 
 
-void readTextFromStream(text *t, FILE *s);
+textError readTextFromStream(text *t, FILE *s);
 
 void sortText(text *t);
 
 void writeTextToStream(text *t, FILE *s);
+
+void freeText(text *t);
 
 
 #endif
