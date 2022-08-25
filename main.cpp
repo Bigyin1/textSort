@@ -5,11 +5,13 @@ int main(int argc, char **)
 {
   text t = {.lines = NULL, .linesNumber = 0, .linesCapacity = 0};
 
-  readTextFromStream(&t, stdin);
+  FILE *f = fopen("test", "r");
+  FILE *fo = fopen("testOut", "w");
+  readTextFromStream(&t, f);
 
   sortText(&t);
 
-  writeTextToStream(&t, stdout);
+  writeTextToStream(&t, fo);
 
   freeText(&t);
 

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 #include "text.hpp"
 
 
@@ -10,10 +11,10 @@
 /**
  *  @brief Reads line from stream, using getline std function
  *  @param [out] retLine Pointer to line
- *  @param s File stream to read from
- *  @return  0 on success, E_ALLOC
+ *  @param [in] s File stream to read from
+ *  @return  E_OK on success, E_NO_DATA on E_ALLOC
  */
-static textError readLineFromStream(char **retLine, FILE *s) {
+static ssize_t readLineFromStream(char **retLine, FILE *s) {
     assert(retLine != NULL && s != NULL);
 
     char *line = NULL;
@@ -24,15 +25,18 @@ static textError readLineFromStream(char **retLine, FILE *s) {
     ssize_t c = getline(&line, &n, s);
     if (c == -1) {
         assert(errno != EINVAL);
-
         if (errno == ENOMEM)
             return E_ALLOC;
+
+        return E_NO_DATA;
     }
 
     *retLine = line;
 
     return E_OK;
 }
+
+static bool trimWhiteSpaces()
 
 
 textError readTextFromStream(text *t, FILE *s) {
@@ -48,9 +52,12 @@ textError readTextFromStream(text *t, FILE *s) {
 
     while (!feof(s)) {
         textError readErr = readLineFromStream(t->lines + t->linesNumber, s);
+        if (readErr == E_NO_DATA)
+            break;
         if (readErr != E_OK)
             return readErr;
 
+        trimWhiteSpaces();
         ++t->linesNumber;
 
         if (t->linesNumber == t->linesCapacity) {

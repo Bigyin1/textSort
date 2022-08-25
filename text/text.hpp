@@ -12,6 +12,7 @@ enum textError
 {
     E_OK,
     E_ALLOC,
+    E_NO_DATA,
 };
 
 typedef enum textError textError;
