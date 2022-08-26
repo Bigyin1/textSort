@@ -10,9 +10,9 @@
 
 /**
  *  @brief Reads line from stream, using getline std function
- *  @param [out] retLine Pointer to line
+ *  @param [out] retLine Pointer to line, sets retLine->originalLine to result, or NULL if no data was read.
  *  @param [in] s File stream to read from
- *  @return  E_OK on success, E_NO_DATA on E_ALLOC
+ *  @return  E_OK on success, E_ALLOC or E_READ on error
  */
 static textError readLineFromStream(line *retLine, FILE *s) {
     assert(retLine != NULL && s != NULL);
@@ -67,8 +67,9 @@ static textError growLines(text *t) {
     const size_t capMultFactor = 2;
 
     t->linesCapacity *= capMultFactor;
-    line *newLines = (line *)reallocarray(t->textLines,
-            sizeof(line), t->linesCapacity);
+    line *newLines = (line *)realloc(t->textLines,
+            sizeof(line) * t->linesCapacity);
+
     if (newLines == NULL)
         return E_ALLOC;
 
@@ -88,6 +89,7 @@ textError readTextFromStream(text *t, FILE *s) {
 
     t->linesCount = 0;
     t->linesCapacity = initCapacity;
+
     t->textLines = (line *)calloc(sizeof(line), t->linesCapacity);
     if (t->textLines == NULL)
         return E_ALLOC;

@@ -1,12 +1,28 @@
 #include <stdio.h>
 #include "text/text.hpp"
 
-int main(int argc, char **)
+int main(int argc, char **argv)
 {
-  text t = {.textLines = NULL, .linesCount = 0, .linesCapacity = 0};
+  FILE *fi = NULL;
+  FILE *fo = NULL;
 
-  FILE *fi =  fopen("testdata/test", "r");
-  FILE *fo =  fopen("testOut", "w");
+  if (argc == 1) {
+    fi = stdin;
+    fo = stdout;
+  } else if (argc == 3) {
+    fi =  fopen(argv[1], "r");
+    if (fi == NULL) {
+      fprintf(stderr, "Failed to open: %s\n", argv[1]);
+      return 1;
+    }
+    fo =  fopen(argv[2], "w");
+    if (fo == NULL) {
+      fprintf(stderr, "Failed to open: %s\n", argv[2]);
+      return 1;
+    }
+  }
+
+  text t = {.textLines = NULL, .linesCount = 0, .linesCapacity = 0};
   textError err = readTextFromStream(&t, fi);
   if (err != E_OK) {
     //print err;
