@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "text/text.hpp"
+#include "test/test.hpp"
 
 
 const char *textDelimiter = "\n\n-------------\n\n";
@@ -15,6 +16,11 @@ static void freeResources(text *t, FILE *fi, FILE *fo) {
 
 int main(int argc, char **argv)
 {
+  if (argc == 2) {
+    runTests();
+    return EXIT_SUCCESS;
+  }
+
   FILE *fi = NULL;
   FILE *fo = NULL;
 
@@ -43,7 +49,7 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  sortText(&t);
+  sortTextDirect(&t);
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {

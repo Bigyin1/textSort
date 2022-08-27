@@ -54,7 +54,7 @@ textError readTextFromStream(text *t, FILE *s);
 /**
  * @brief Sorts text's lines using qsort() in ascending order by line.processedLineStart .
  */
-void sortText(text *t);
+void sortTextDirect(text *t);
 
 
 void sortTextReverse(text *t);

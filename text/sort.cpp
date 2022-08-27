@@ -68,7 +68,7 @@ static int cmpLineIdx(const void *l1, const void *l2) {
 }
 
 
-void sortText(text *t) {
+void sortTextDirect(text *t) {
 
     qsort(t->textLines, t->linesCount, sizeof(line), cmpLines);
 

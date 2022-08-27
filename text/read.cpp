@@ -21,7 +21,7 @@ static textError readLineFromStream(line *retLine, FILE *s) {
     size_t n = 0;
 
     ssize_t c = getline(&rawLine, &n, s);
-    if (c == -1) {
+    if (c == EOF) {
         free(rawLine);
         retLine->originalLine = NULL;
 
@@ -39,9 +39,9 @@ static textError readLineFromStream(line *retLine, FILE *s) {
 
 
 /**
- *  @brief Trims spaces from start of line
- *  Sets trimmed line to l->processedLineStart
- *  @param  line Pointer to line
+ *  @brief Trims spaces and punctuation from start and end of line
+ *  Sets trimmed line to l->processedLineStart and l->processedLineEnd
+ *  @param  l Pointer to line
  */
 static void processLine(line *l) {
     assert(l != NULL);
@@ -59,13 +59,12 @@ static void processLine(line *l) {
     l->processedLineStart = lineStart;
 
     char *lineEnd = lineStart + strlen(lineStart);
-    while (isspace(*lineEnd) || ispunct(*lineEnd) || !*lineEnd)
+    while (isspace(*lineEnd) || ispunct(*lineEnd) || (*lineEnd == '\0'))
         --lineEnd;
 
     ++lineEnd;
 
     l->processedLineEnd = lineEnd;
-
 }
 
 
