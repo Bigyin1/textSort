@@ -31,9 +31,25 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  sortText(&t);
 
+  err = writeTextToStream(&t, fo);
+  if (err != E_OK) {
+    freeText(&t);
+    return 1;
+  }
 
+  fprintf(fo, "\n\n-------------\n\n");
   sortTextReverse(&t);
+
+  err = writeTextToStream(&t, fo);
+  if (err != E_OK) {
+    freeText(&t);
+    return 1;
+  }
+
+  fprintf(fo, "\n\n-------------\n\n");
+  sortTextByLineOrder(&t);
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {

@@ -24,10 +24,10 @@ typedef enum textError textError;
  */
 struct line
 {
-    char *processedLineStart;   // Line with trmmed trailing spaces.
-    char *processedLineEnd;     // Pointer to last char of processed line
-    char *originalLine;         // Line that was read from file. free() should be called on this one.
-    size_t *lineIdx;            // Index if line in original text;
+    char    *processedLineStart;   // Line with trmmed trailing spaces.
+    char    *processedLineEnd;     // Pointer to last char of processed line
+    char    *originalLine;         // Line that was read from file. free() should be called on this one.
+    size_t  lineIdx;               // Index of line in original text;
 };
 
 typedef struct line line;
@@ -58,6 +58,9 @@ void sortText(text *t);
 
 
 void sortTextReverse(text *t);
+
+
+void sortTextByLineOrder(text *t);
 
 /**
  * @brief Writes text to stream, using line.originalLine .

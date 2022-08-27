@@ -103,16 +103,20 @@ textError readTextFromStream(text *t, FILE *s) {
         return E_ALLOC;
 
     while (!feof(s)) {
-        textError readErr = readLineFromStream(&t->textLines[t->linesCount], s);
+        line *currLine = &t->textLines[t->linesCount];
+
+        textError readErr = readLineFromStream(currLine, s);
         if (readErr != E_OK)
             return readErr;
 
-        if (t->textLines[t->linesCount].originalLine == NULL)
+        if (currLine->originalLine == NULL)
             break;
 
-        processLine(&t->textLines[t->linesCount]);
-        if (t->textLines[t->linesCount].originalLine != NULL)
+        processLine(currLine);
+        if (currLine->originalLine != NULL) {
+            currLine->lineIdx = t->linesCount;
             ++t->linesCount;
+        }
 
         if (t->linesCount == t->linesCapacity) {
             textError err = growLines(t);

@@ -53,6 +53,20 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
     }
 }
 
+static int cmpLineIdx(const void *l1, const void *l2) {
+    assert(l1 != NULL && l2 != NULL);
+
+    size_t line1Idx = ((const line *)l1)->lineIdx;
+    size_t line2Idx = ((const line *)l2)->lineIdx;
+
+    assert(line1Idx != line2Idx);
+
+    if (line1Idx > line2Idx)
+        return 1;
+    else
+        return -1;
+}
+
 
 void sortText(text *t) {
 
@@ -63,5 +77,11 @@ void sortText(text *t) {
 void sortTextReverse(text *t) {
 
     qsort(t->textLines, t->linesCount, sizeof(line), cmpLinesReverse);
+
+}
+
+void sortTextByLineOrder(text *t) {
+
+    qsort(t->textLines, t->linesCount, sizeof(line), cmpLineIdx);
 
 }
