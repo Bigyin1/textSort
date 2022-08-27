@@ -8,7 +8,8 @@ SRCS = 	main.cpp \
 		text/read.cpp \
 		text/write.cpp \
 		text/sort.cpp \
-		text/free.cpp
+		text/free.cpp \
+		text/error.cpp
 
 INCLUDES =
 

@@ -4,7 +4,6 @@
 #include "text.hpp"
 
 
-
 textError writeTextToStream(text *t, FILE *s) {
     assert(t != NULL && s != NULL);
 

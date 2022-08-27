@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include "text/text.hpp"
 
+static void freeResources(text *t, FILE *fi, FILE *fo) {
+    freeText(t);
+    fclose(fi);
+    fclose(fo);
+}
+
+
 int main(int argc, char **argv)
 {
   FILE *fi = NULL;
@@ -18,6 +25,7 @@ int main(int argc, char **argv)
     fo =  fopen(argv[2], "w");
     if (fo == NULL) {
       fprintf(stderr, "Failed to open: %s\n", argv[2]);
+      fclose(fi);
       return 1;
     }
   }
@@ -25,9 +33,8 @@ int main(int argc, char **argv)
   text t = {.textLines = NULL, .linesCount = 0, .linesCapacity = 0};
   textError err = readTextFromStream(&t, fi);
   if (err != E_OK) {
-    freeText(&t);
-    fclose(fi);
-    fclose(fo);
+    printError(err);
+    freeResources(&t, fi, fo);
     return 1;
   }
 
@@ -35,7 +42,8 @@ int main(int argc, char **argv)
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {
-    freeText(&t);
+    printError(err);
+    freeResources(&t, fi, fo);
     return 1;
   }
 
@@ -44,7 +52,8 @@ int main(int argc, char **argv)
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {
-    freeText(&t);
+    printError(err);
+    freeResources(&t, fi, fo);
     return 1;
   }
 
@@ -53,10 +62,11 @@ int main(int argc, char **argv)
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {
-    freeText(&t);
+    printError(err);
+    freeResources(&t, fi, fo);
     return 1;
   }
 
-  freeText(&t);
+  freeResources(&t, fi, fo);
   return 0;
 }

@@ -67,6 +67,9 @@ void sortTextByLineOrder(text *t);
  */
 textError writeTextToStream(text *t, FILE *s);
 
+void printError(textError err);
+
+
 void freeText(text *t);
 
 
