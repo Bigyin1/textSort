@@ -40,14 +40,15 @@ static textError readLineFromStream(line *retLine, FILE *s) {
 
 /**
  *  @brief Trims spaces from start of line
- *  Sets trimmed line to l->processedLine
+ *  Sets trimmed line to l->processedLineStart
  *  @param  line Pointer to line
  */
 static void processLine(line *l) {
+    assert(l != NULL);
 
     char *lineStart = l->originalLine;
 
-    while(isspace(*lineStart))
+    while(isspace(*lineStart) || ispunct(*lineStart))
         ++lineStart;
 
     if (*lineStart  == '\0') {
@@ -55,8 +56,15 @@ static void processLine(line *l) {
         l->originalLine = NULL;
         return;
     }
+    l->processedLineStart = lineStart;
 
-    l->processedLine = lineStart;
+    char *lineEnd = lineStart + strlen(lineStart);
+    while (isspace(*lineEnd) || ispunct(*lineEnd) || !*lineEnd)
+        --lineEnd;
+
+    ++lineEnd;
+
+    l->processedLineEnd = lineEnd;
 
 }
 

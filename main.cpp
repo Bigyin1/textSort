@@ -25,24 +25,22 @@ int main(int argc, char **argv)
   text t = {.textLines = NULL, .linesCount = 0, .linesCapacity = 0};
   textError err = readTextFromStream(&t, fi);
   if (err != E_OK) {
-    //print err;
     freeText(&t);
+    fclose(fi);
+    fclose(fo);
     return 1;
   }
 
-  sortText(&t);
+
+
+  sortTextReverse(&t);
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {
-    //print err;
     freeText(&t);
     return 1;
   }
 
   freeText(&t);
-
-  fclose(fi);
-  fclose(fo);
-
   return 0;
 }
