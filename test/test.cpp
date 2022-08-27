@@ -28,8 +28,8 @@ static bool cmpTexts(text *t1, text *t2) {
         if (strcmp( t1->textLines[i].originalLine,
                     t2->textLines[i].originalLine) != 0) {
 
-            printf("line %ld is not identical\n", i);
-            printf("\n%s\n%s", t1->textLines[i].originalLine,
+            printf("line %ld is not identical\n", i + 1);
+            printf("\nGot:\n%s\nShould be:\n%s", t1->textLines[i].originalLine,
              t2->textLines[i].originalLine);
             return false;
         }
@@ -56,6 +56,7 @@ static void processTestData(testData *td) {
 
     if (td->textSortedReverse.textLines != NULL) {
         printf("\nTesting reverse sorting\n");
+        sortTextByLineOrder(&td->textInital);
         sortTextReverse(&td->textInital);
         if (cmpTexts(&td->textInital, &td->textSortedReverse))
             puts("OK\n");
@@ -161,10 +162,6 @@ void runTests() {
             continue;
         runTest(de);
     }
-
     closedir(tesdataDir);
-
-
-
-
+    chdir("..");
 }

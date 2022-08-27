@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "text/text.hpp"
 #include "test/test.hpp"
 
@@ -16,7 +17,7 @@ static void freeResources(text *t, FILE *fi, FILE *fo) {
 
 int main(int argc, char **argv)
 {
-  if (argc == 2) {
+  if (argc == 2 && strcmp(argv[1], "--test") == 0) {
     runTests();
     return EXIT_SUCCESS;
   }
