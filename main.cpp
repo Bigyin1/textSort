@@ -1,5 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "text/text.hpp"
+
+
+const char *textDelimiter = "\n\n-------------\n\n";
+
 
 static void freeResources(text *t, FILE *fi, FILE *fo) {
     freeText(t);
@@ -20,13 +25,13 @@ int main(int argc, char **argv)
     fi =  fopen(argv[1], "r");
     if (fi == NULL) {
       fprintf(stderr, "Failed to open: %s\n", argv[1]);
-      return 1;
+      return EXIT_FAILURE;
     }
     fo =  fopen(argv[2], "w");
     if (fo == NULL) {
       fprintf(stderr, "Failed to open: %s\n", argv[2]);
       fclose(fi);
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -35,7 +40,7 @@ int main(int argc, char **argv)
   if (err != E_OK) {
     printError(err);
     freeResources(&t, fi, fo);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   sortText(&t);
@@ -44,29 +49,29 @@ int main(int argc, char **argv)
   if (err != E_OK) {
     printError(err);
     freeResources(&t, fi, fo);
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  fprintf(fo, "\n\n-------------\n\n");
+  fputs(textDelimiter, fo);
   sortTextReverse(&t);
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {
     printError(err);
     freeResources(&t, fi, fo);
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  fprintf(fo, "\n\n-------------\n\n");
+  fputs(textDelimiter, fo);
   sortTextByLineOrder(&t);
 
   err = writeTextToStream(&t, fo);
   if (err != E_OK) {
     printError(err);
     freeResources(&t, fi, fo);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   freeResources(&t, fi, fo);
-  return 0;
+  return EXIT_SUCCESS;
 }
