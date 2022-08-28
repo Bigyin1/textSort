@@ -37,7 +37,6 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-
   text t = {.textLines = NULL, .linesCount = 0, .text = NULL, .textSize = 0};
   textError err = readTextFromFile(&t, fi);
   if (err != E_OK) {

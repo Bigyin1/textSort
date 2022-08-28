@@ -38,6 +38,7 @@ struct text
 {
     line            *textLines;
     size_t          linesCount;
+
     char            *text;
     size_t          textSize;
 };
@@ -51,10 +52,12 @@ typedef struct text text;
  */
 textError readTextFromFile(text *t, FILE *s);
 
+
 /**
  * @brief Sorts text's lines using qsort() in ascending order by line.processedLineStart .
  */
 void sortTextDirect(text *t);
+
 
 /**
  * @brief Sorts text's lines using qsort() in ascending order by line.processedLineEnd .
@@ -72,7 +75,9 @@ textError writeTextToStream(text *t, FILE *s);
  */
 textError writeInitialTextToStream(text *t, FILE *s);
 
+
 void printError(textError err);
+
 
 void freeText(text *t);
 

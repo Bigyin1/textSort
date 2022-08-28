@@ -9,7 +9,6 @@
 #include "text.hpp"
 
 
-
 /**
  *  @brief Trims spaces and punctuation from start and end of line
  *  Sets trimmed line to l->processedLineStart and l->processedLineEnd
@@ -24,20 +23,20 @@ static void processLine(line *l) {
         if (*lineStart == '\n')
             break;
         ++lineStart;
-
     }
 
     if (*lineStart  == '\n') {
         l->originalLine = NULL;
+        l->processedLineStart = lineStart;
+        l->processedLineEnd = lineStart;
         return;
     }
+
     l->processedLineStart = lineStart;
 
     char *lineEnd = strchr(lineStart, '\n');
     while (isspace(*lineEnd) || ispunct(*lineEnd))
         --lineEnd;
-
-    ++lineEnd;
 
     l->processedLineEnd = lineEnd;
 }
@@ -74,9 +73,12 @@ static textError getFileSize(text *t, FILE *f) {
 
     if (fseek(f, 0, SEEK_END) != 0)
         return E_READ;
+
     long fSize = ftell(f);
+
     if (fSize == -1)
         return E_READ;
+
     if (fseek(f, 0, SEEK_SET) != 0)
         return E_READ;
 
@@ -86,7 +88,6 @@ static textError getFileSize(text *t, FILE *f) {
 }
 
 static void insertFinalNewline(text *t) {
-    t->text[t->textSize + 1] = '\0';
     if (t->text[t->textSize - 1] != '\n')
         t->text[t->textSize] = '\n';
     else
@@ -101,7 +102,7 @@ textError readTextFromFile(text *t, FILE *f) {
     if ((err = getFileSize(t, f)) != E_OK)
         return err;
 
-    t->text = (char *)calloc(t->textSize + 2, sizeof(*t->text));
+    t->text = (char *)calloc(t->textSize + 2, sizeof(*t->text)); // + 2 for newline and \0
     if (t->text == NULL)
         return E_ALLOC;
 
@@ -116,7 +117,7 @@ textError readTextFromFile(text *t, FILE *f) {
         return E_ALLOC;
 
     err = setupLines(t);
-    if (err != NULL)
+    if (err != E_OK)
         return err;
 
     return E_OK;
