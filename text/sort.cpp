@@ -10,6 +10,14 @@ static int cmpLines(const void *l1, const void *l2) {
     const char *line1 = ((const line *)l1)->processedLineStart;
     const char *line2 = ((const line *)l2)->processedLineStart;
 
+    if (line1 == NULL || line2 == NULL) {
+        if (line1 != NULL)
+            return 1;
+        if (line2 != NULL)
+            return -1;
+        return 0;
+    }
+
     while (*line1 && *line2) {
 
         if (*line1 == *line2) {
@@ -29,6 +37,14 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
 
     const char *line1Start = ((const line *)l1)->processedLineStart;
     const char *line2Start = ((const line *)l2)->processedLineStart;
+
+    if (line1Start == NULL || line2Start == NULL) {
+        if (line1Start != NULL)
+            return 1;
+        if (line2Start != NULL)
+            return -1;
+        return 0;
+    }
 
     const char *line1End = ((const line *)l1)->processedLineEnd;
     const char *line2End = ((const line *)l2)->processedLineEnd;
@@ -53,20 +69,6 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
     }
 }
 
-static int cmpLineIdx(const void *l1, const void *l2) {
-    assert(l1 != NULL && l2 != NULL);
-
-    size_t line1Idx = ((const line *)l1)->lineIdx;
-    size_t line2Idx = ((const line *)l2)->lineIdx;
-
-    assert(line1Idx != line2Idx);
-
-    if (line1Idx > line2Idx)
-        return 1;
-    else
-        return -1;
-}
-
 
 void sortTextDirect(text *t) {
 
@@ -77,11 +79,5 @@ void sortTextDirect(text *t) {
 void sortTextReverse(text *t) {
 
     qsort(t->textLines, t->linesCount, sizeof(line), cmpLinesReverse);
-
-}
-
-void sortTextByLineOrder(text *t) {
-
-    qsort(t->textLines, t->linesCount, sizeof(line), cmpLineIdx);
 
 }

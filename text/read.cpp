@@ -5,37 +5,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <sys/stat.h>
 #include "text.hpp"
 
-
-/**
- *  @brief Reads line from stream, using getline std function
- *  @param [out] retLine Pointer to line, sets retLine->originalLine to result, or NULL if no data was read.
- *  @param [in] s File stream to read from
- *  @return  E_OK on success, E_ALLOC or E_READ on error
- */
-static textError readLineFromStream(line *retLine, FILE *s) {
-    assert(retLine != NULL && s != NULL);
-
-    char *rawLine = NULL;
-    size_t n = 0;
-
-    ssize_t c = getline(&rawLine, &n, s);
-    if (c == EOF) {
-        free(rawLine);
-        retLine->originalLine = NULL;
-
-        if (errno == ENOMEM)
-            return E_ALLOC;
-        if (errno == EINVAL)
-            return E_READ;
-
-        return E_OK;
-    }
-
-    retLine->originalLine = rawLine;
-    return E_OK;
-}
 
 
 /**
@@ -48,18 +20,21 @@ static void processLine(line *l) {
 
     char *lineStart = l->originalLine;
 
-    while(isspace(*lineStart) || ispunct(*lineStart))
+    while(isspace(*lineStart) || ispunct(*lineStart)) {
+        if (*lineStart == '\n')
+            break;
         ++lineStart;
 
-    if (*lineStart  == '\0') {
-        free(l->originalLine);
+    }
+
+    if (*lineStart  == '\n') {
         l->originalLine = NULL;
         return;
     }
     l->processedLineStart = lineStart;
 
-    char *lineEnd = lineStart + strlen(lineStart);
-    while (isspace(*lineEnd) || ispunct(*lineEnd) || (*lineEnd == '\0'))
+    char *lineEnd = strchr(lineStart, '\n');
+    while (isspace(*lineEnd) || ispunct(*lineEnd))
         --lineEnd;
 
     ++lineEnd;
@@ -68,61 +43,81 @@ static void processLine(line *l) {
 }
 
 
-static textError growLines(text *t) {
-    assert(t != NULL);
+static textError setupLines(text *t) {
 
-    const size_t capMultFactor = 2;
+    char *currLineStart = t->text;
+    for (size_t i = 0; i < t->linesCount; ++i) {
+        line *currLine = &t->textLines[i];
+        currLine->originalLine = currLineStart;
 
-    t->linesCapacity *= capMultFactor;
-    line *newLines = (line *)realloc(t->textLines,
-            sizeof(line) * t->linesCapacity);
+        processLine(currLine);
 
-    if (newLines == NULL)
-        return E_ALLOC;
-
-    if (newLines != t->textLines)
-        memset(newLines + t->linesCount, 0,
-         sizeof(line) * (t->linesCapacity - t->linesCount));
-
-    t->textLines = newLines;
+        currLineStart = (strchr(currLineStart, '\n') + 1);
+    }
     return E_OK;
 }
 
+static size_t getLinesCount(text *t) {
+    assert(t != NULL);
 
-textError readTextFromStream(text *t, FILE *s) {
-    assert(t != NULL && s != NULL);
+    size_t linesCount = 0;
+    for (size_t i = 0; i < t->textSize; ++i)  {
+        if (t->text[i] == '\n')
+            linesCount++;
+    }
 
-    const size_t initCapacity = 16;
+    return linesCount;
+}
 
-    t->linesCount = 0;
-    t->linesCapacity = initCapacity;
+static textError getFileSize(text *t, FILE *f) {
+    assert(t != NULL && f != NULL);
 
-    t->textLines = (line *)calloc(sizeof(line), t->linesCapacity);
+    if (fseek(f, 0, SEEK_END) != 0)
+        return E_READ;
+    long fSize = ftell(f);
+    if (fSize == -1)
+        return E_READ;
+    if (fseek(f, 0, SEEK_SET) != 0)
+        return E_READ;
+
+    t->textSize = (size_t)fSize;
+
+    return E_OK;
+}
+
+static void insertFinalNewline(text *t) {
+    t->text[t->textSize + 1] = '\0';
+    if (t->text[t->textSize - 1] != '\n')
+        t->text[t->textSize] = '\n';
+    else
+        t->text[t->textSize] = '\0';
+}
+
+textError readTextFromFile(text *t, FILE *f) {
+    assert(t != NULL && f!= NULL);
+
+    textError err = E_OK;
+
+    if ((err = getFileSize(t, f)) != E_OK)
+        return err;
+
+    t->text = (char *)calloc(t->textSize + 2, sizeof(*t->text));
+    if (t->text == NULL)
+        return E_ALLOC;
+
+    if (fread(t->text, sizeof(*t->text), t->textSize, f) != t->textSize)
+        return E_READ;
+
+    insertFinalNewline(t);
+
+    t->linesCount = getLinesCount(t);
+    t->textLines = (line *)calloc(t->linesCount, sizeof(*t->textLines));
     if (t->textLines == NULL)
         return E_ALLOC;
 
-    while (!feof(s)) {
-        line *currLine = &t->textLines[t->linesCount];
-
-        textError readErr = readLineFromStream(currLine, s);
-        if (readErr != E_OK)
-            return readErr;
-
-        if (currLine->originalLine == NULL)
-            break;
-
-        processLine(currLine);
-        if (currLine->originalLine != NULL) {
-            currLine->lineIdx = t->linesCount;
-            ++t->linesCount;
-        }
-
-        if (t->linesCount == t->linesCapacity) {
-            textError err = growLines(t);
-            if (err != E_OK)
-                return err;
-        }
-    }
+    err = setupLines(t);
+    if (err != NULL)
+        return err;
 
     return E_OK;
 }

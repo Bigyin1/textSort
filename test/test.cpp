@@ -97,7 +97,7 @@ static void readTestTexts(testData *td, char *fName) {
         return;
     }
 
-    readTextFromStream(textCurrent, f);
+    readTextFromFile(textCurrent, f);
     fclose(f);
 }
 

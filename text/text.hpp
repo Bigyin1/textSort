@@ -27,7 +27,6 @@ struct line
     char    *processedLineStart;   // Line with trmmed trailing spaces.
     char    *processedLineEnd;     // Pointer to last char of processed line
     char    *originalLine;         // Line that was read from file. free() should be called on this one.
-    size_t  lineIdx;               // Index of line in original text;
 };
 
 typedef struct line line;
@@ -37,38 +36,43 @@ typedef struct line line;
  */
 struct text
 {
-    line    *textLines;
-    size_t  linesCount;
-    size_t  linesCapacity;
+    line            *textLines;
+    size_t          linesCount;
+    char            *text;
+    size_t          textSize;
 };
 
 typedef struct text text;
 
 
 /**
- * @brief Reads text from stream line by line.
- * Stream can be regular file, pipe, tty.
+ * @brief Reads text from file.
+ *
  */
-textError readTextFromStream(text *t, FILE *s);
+textError readTextFromFile(text *t, FILE *s);
 
 /**
  * @brief Sorts text's lines using qsort() in ascending order by line.processedLineStart .
  */
 void sortTextDirect(text *t);
 
-
+/**
+ * @brief Sorts text's lines using qsort() in ascending order by line.processedLineEnd .
+ */
 void sortTextReverse(text *t);
 
 
-void sortTextByLineOrder(text *t);
-
 /**
- * @brief Writes text to stream, using line.originalLine .
+ * @brief Writes text to stream, using line.originalLine.
  */
 textError writeTextToStream(text *t, FILE *s);
 
-void printError(textError err);
+/**
+ * @brief Writes initial t.text to stream.
+ */
+textError writeInitialTextToStream(text *t, FILE *s);
 
+void printError(textError err);
 
 void freeText(text *t);
 
