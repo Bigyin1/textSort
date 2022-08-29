@@ -13,24 +13,17 @@ static int cmpLines(const void *l1, const void *l2) {
     const char *line1End = ((const line *)l1)->processedLineEnd;
     const char *line2End = ((const line *)l2)->processedLineEnd;
 
-    while (line1End != line1Start && line2End != line2Start) {
+    while (line1Start != line1End && line2Start != line2End) {
 
         if (*line1Start == *line2Start) {
             ++line1Start;
             ++line2Start;
             continue;
         }
-
-        return (*line1Start - *line2Start);
+        break;
     }
 
-    if (line1End == line1Start && line2End == line2Start) {
-        return 0;
-    } else if (line1End == line1Start)  {
-        return ('\0' - *line2Start);
-    } else {
-        return (*line1Start - '\0');
-    }
+    return (*line1Start - *line2Start);
 }
 
 static int cmpLinesReverse(const void *l1, const void *l2) {
@@ -50,16 +43,10 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
             continue;
         }
 
-        return (*line1End - *line2End);
+        break;
     }
 
-    if (line1End == line1Start && line2End == line2Start) {
-        return 0;
-    } else if (line1End == line1Start)  {
-        return ('\0' - *line2End);
-    } else {
-        return (*line1End - '\0');
-    }
+    return (*line1End - *line2End);
 }
 
 

@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
   sortTextDirect(&t);
 
-  err = writeTextToStream(&t, fo);
+  err = writeTextLinesToStream(&t, fo);
   if (err != E_OK) {
     printError(err);
     freeResources(&t, fi, fo);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   fputs(textDelimiter, fo);
   sortTextReverse(&t);
 
-  err = writeTextToStream(&t, fo);
+  err = writeTextLinesToStream(&t, fo);
   if (err != E_OK) {
     printError(err);
     freeResources(&t, fi, fo);

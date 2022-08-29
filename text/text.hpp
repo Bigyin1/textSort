@@ -68,7 +68,7 @@ void sortTextReverse(text *t);
 /**
  * @brief Writes text to stream, using line.originalLine.
  */
-textError writeTextToStream(text *t, FILE *s);
+textError writeTextLinesToStream(text *t, FILE *s);
 
 /**
  * @brief Writes initial t.text to stream.
