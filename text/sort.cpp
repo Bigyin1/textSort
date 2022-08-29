@@ -3,38 +3,60 @@
 #include <assert.h>
 #include "text.hpp"
 
-static void swap(line *m1, line *m2, line *buf, size_t width) {
-    memcpy(buf, m2, width);
-    memcpy(m2,  m1, width);
-    memcpy(m1, buf, width);
+static void swap(void *m1, void *m2, size_t width) {
+    assert(m1 != NULL && m2 != NULL);
+
+    int64_t bufqw = 0;
+    int64_t *m1qw = (int64_t *)m1;
+    int64_t *m2qw = (int64_t *)m2;
+
+    while (width >= 8) {
+        bufqw = *m2qw;
+        *m2qw = *m1qw;
+        *m1qw = bufqw;
+        ++m1qw;
+        ++m2qw;
+        width -= sizeof(bufqw);
+    }
+
+    char bufb = 0;
+    char *m1b = (char *)m1qw;
+    char *m2b = (char *)m2qw;
+
+    while (width > 0) {
+        bufb = *m2b;
+        *m2b = *m1b;
+        *m1b = bufb;
+        ++m1b;
+        ++m2b;
+        width -= sizeof(bufb);
+    }
 }
 
-static line buf[1] = {0};
-
-static void my_qsort(line *base, size_t nel, size_t width, int (*compar)(const void *, const void *)) {
+static void my_qsort(void *base, size_t nel, size_t width, int (*compar)(const void *, const void *)) {
     assert(base != NULL && compar != NULL && width != 0);
 
     if (nel <= 1)
         return;
 
-    line *baseB = base;
+    char *baseB = (char *)base;
 
-    line *pivot = base;
+    void *pivot = base;
     size_t i = 0;
     size_t j = nel - 1;
 
     while (i < j) {
-        while (compar(pivot, &baseB[i]) >= 0 && i < j)
+        while (compar(pivot, &baseB[width * i]) >= 0 && i < j)
             ++i;
-        while (compar(&baseB[j], pivot) >= 0 && i < j)
+        while (compar(&baseB[width * j], pivot) >= 0 && i < j)
             --j;
 
-        swap(&baseB[j--], &baseB[i++], buf, width);
+        swap(&baseB[width * j--], &baseB[width * i++], width);
     }
 
-    swap(pivot, &baseB[j], buf, width);
+    swap(pivot, &baseB[width * j], width);
     qsort(baseB, j, width, compar);
-    qsort(baseB + j + 1, nel - j - 1 , width, compar);
+    qsort(baseB + width * (j + 1), nel - j - 1 , width, compar);
 }
 
 
