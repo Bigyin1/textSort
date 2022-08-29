@@ -24,7 +24,7 @@ typedef enum textError textError;
  */
 struct line
 {
-    char    *processedLineStart;   // Line with trmmed trailing spaces.
+    char    *processedLineStart;   // Line with trmmed trailing spaces and punctuation.
     char    *processedLineEnd;     // Pointer to last char of processed line
     char    *originalLine;         // Line that was read from file. free() should be called on this one.
 };
@@ -36,11 +36,11 @@ typedef struct line line;
  */
 struct text
 {
-    line            *textLines;
-    size_t          linesCount;
+    line            *textLines; // Pointer to array of lines
+    size_t          linesCount; // len of lines array
 
-    char            *text;
-    size_t          textSize;
+    char            *text; // pointer to raw file text
+    size_t          textSize; // len of raw file text
 };
 
 typedef struct text text;
@@ -48,37 +48,41 @@ typedef struct text text;
 
 /**
  * @brief Reads text from file.
- *
  */
 textError readTextFromFile(text *t, FILE *s);
 
 
 /**
- * @brief Sorts text's lines using qsort() in ascending order by line.processedLineStart .
+ * @brief Sorts text's lines using qsort() in ascending order by line.processedLineStart.
  */
 void sortTextDirect(text *t);
 
 
 /**
- * @brief Sorts text's lines using qsort() in ascending order by line.processedLineEnd .
+ * @brief Sorts text's lines using qsort() in ascending order by line.processedLineEnd.
  */
 void sortTextReverse(text *t);
 
 
 /**
- * @brief Writes text to stream, using line.originalLine.
+ * @brief Writes sorted text lines to stream, using line.originalLine.
  */
 textError writeTextLinesToStream(text *t, FILE *s);
 
 /**
- * @brief Writes initial t.text to stream.
+ * @brief Writes raw file text to stream.
  */
 textError writeInitialTextToStream(text *t, FILE *s);
 
-
+/**
+ * @brief Prints error message to stderror
+ */
 void printError(textError err);
 
 
+/**
+ * @brief Frees used memory
+ */
 void freeText(text *t);
 
 

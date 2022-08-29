@@ -3,44 +3,38 @@
 #include <assert.h>
 #include "text.hpp"
 
-static void swap(void *m1, void *m2, void *buf, size_t width) {
+static void swap(line *m1, line *m2, line *buf, size_t width) {
     memcpy(buf, m2, width);
-    memcpy(m2, m1, width);
+    memcpy(m2,  m1, width);
     memcpy(m1, buf, width);
 }
+
+static line buf[1] = {0};
 
 static void my_qsort(line *base, size_t nel, size_t width, int (*compar)(const void *, const void *)) {
     assert(base != NULL && compar != NULL && width != 0);
 
-    static char *buf = (char *)calloc(1, width);
-    static size_t startElems = nel;
-
     if (nel <= 1)
         return;
 
-    char *baseB = (char *)base;
+    line *baseB = base;
 
     line *pivot = base;
     size_t i = 0;
     size_t j = nel - 1;
 
     while (i < j) {
-        while (compar(pivot, &baseB[i * width]) >= 0 && i < j)
+        while (compar(pivot, &baseB[i]) >= 0 && i < j)
             ++i;
-        while (compar(&baseB[j * width], pivot) >= 0 && i < j)
+        while (compar(&baseB[j], pivot) >= 0 && i < j)
             --j;
 
-        swap(&baseB[j-- * width], &baseB[i++ * width], buf, width);
+        swap(&baseB[j--], &baseB[i++], buf, width);
     }
 
-    swap(pivot, &baseB[j * width], buf, width);
+    swap(pivot, &baseB[j], buf, width);
     qsort(baseB, j, width, compar);
     qsort(baseB + j + 1, nel - j - 1 , width, compar);
-
-
-    if (nel == startElems)
-        free(buf);
-
 }
 
 
@@ -109,12 +103,12 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
 
 void sortTextDirect(text *t) {
 
-    qsort(t->textLines, t->linesCount, sizeof(line), cmpLines);
+     my_qsort(t->textLines, t->linesCount, sizeof(line), cmpLines);
 
 }
 
 void sortTextReverse(text *t) {
 
-    qsort(t->textLines, t->linesCount, sizeof(line), cmpLinesReverse);
+    my_qsort(t->textLines, t->linesCount, sizeof(line), cmpLinesReverse);
 
 }
