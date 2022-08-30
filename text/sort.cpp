@@ -41,20 +41,21 @@ static void my_qsort(void *base, size_t nel, size_t width, int (*compar)(const v
 
     char *baseB = (char *)base;
 
-    void *pivot = base;
+    void *pivot = &baseB[(nel >> 1) * width];
+
     size_t i = 0;
     size_t j = nel - 1;
-
     while (i < j) {
-        while (compar(pivot, &baseB[width * i]) >= 0 && i < j)
+        while (i <= j && compar(pivot, &baseB[width * i]) >= 0)
             ++i;
-        while (compar(&baseB[width * j], pivot) >= 0 && i < j)
+        while (i <= j && compar(&baseB[width * j], pivot) > 0)
             --j;
 
-        swap(&baseB[width * j--], &baseB[width * i++], width);
+        if (i < j)
+            swap(&baseB[width * j--], &baseB[width * i++], width);
     }
-
     swap(pivot, &baseB[width * j], width);
+
     qsort(baseB, j, width, compar);
     qsort(baseB + width * (j + 1), nel - j - 1 , width, compar);
 }
@@ -67,58 +68,57 @@ static int cmpLines(const void *l1, const void *l2) {
     const char *line1Start = ((const line *)l1)->processedLineStart;
     const char *line2Start = ((const line *)l2)->processedLineStart;
 
-    const char *line1End = ((const line *)l1)->processedLineEnd;
-    const char *line2End = ((const line *)l2)->processedLineEnd;
+    const char *line1End = ((const line *)l1)->processedLineEnd + 1;
+    const char *line2End = ((const line *)l2)->processedLineEnd + 1;
 
-    while (line1Start != line1End + 1 && line2Start != line2End + 1) {
+    while (line1Start != line1End && line2Start != line2End) {
 
-        if (*line1Start == *line2Start) {
-            ++line1Start;
-            ++line2Start;
-            continue;
-        }
-        break;
+        line1Start = skipSpPunctStart(line1Start);
+        line2Start = skipSpPunctStart(line2Start);
+
+        if (*line1Start != *line2Start)
+            return (*line1Start - *line2Start);
+
+        ++line1Start;
+        ++line2Start;
     }
 
-    if (line1End + 1 == line1Start && line2End + 1 == line2Start) {
+    if (line1Start == line1End && line2Start == line2End) {
         return 0;
-    } else if (line1End + 1 == line1Start)  {
+    } else if (line1Start == line1End)  {
         return ('\0' - *line2Start);
-    } else if (line2End + 1 == line2Start) {
-        return (*line1Start - '\0');
     } else {
-        return (*line1Start - *line2Start);
+        return (*line1Start - '\0');
     }
 }
 
 static int cmpLinesReverse(const void *l1, const void *l2) {
     assert(l1 != NULL && l2 != NULL);
 
-    const char *line1Start = ((const line *)l1)->processedLineStart;
-    const char *line2Start = ((const line *)l2)->processedLineStart;
+    const char *line1Start = ((const line *)l1)->processedLineStart - 1;
+    const char *line2Start = ((const line *)l2)->processedLineStart - 1;
 
     const char *line1End = ((const line *)l1)->processedLineEnd;
     const char *line2End = ((const line *)l2)->processedLineEnd;
 
-    while (line1End != line1Start - 1 && line2End != line2Start - 1) {
+    while (line1End != line1Start && line2End != line2Start) {
 
-        if (*line1End == *line2End) {
-            --line1End;
-            --line2End;
-            continue;
-        }
+        line1End = skipSpPunctEnd(line1End);
+        line2End = skipSpPunctEnd(line2End);
 
-        break;
+        if (*line1End != *line2End)
+            return (*line1End - *line2End);
+
+        --line1End;
+        --line2End;
     }
 
-    if (line1End == line1Start - 1 && line2End == line2Start - 1) {
+    if (line1End == line1Start && line2End == line2Start) {
         return 0;
-    } else if (line1End == line1Start - 1)  {
+    } else if (line1End == line1Start)  {
         return ('\0' - *line2End);
-    } else if (line2End == line2Start - 1) {
-        return (*line1End - '\0');
     } else {
-        return (*line1End - *line2End);
+        return (*line1End - '\0');
     }
 }
 

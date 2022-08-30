@@ -9,6 +9,27 @@
 #include "text.hpp"
 
 
+const char *skipSpPunctStart(const char *lineStart) {
+    assert(lineStart != NULL);
+
+    while(isspace(*lineStart) || ispunct(*lineStart)) {
+        if (*lineStart == '\n')
+            break;
+        ++lineStart;
+    }
+
+    return lineStart;
+}
+
+const char *skipSpPunctEnd(const char *lineEnd) {
+    assert(lineEnd != NULL);
+
+    while (isspace(*lineEnd) || ispunct(*lineEnd))
+        --lineEnd;
+
+    return lineEnd;
+}
+
 /**
  *  @brief Trims spaces and punctuation from start and end of line
  *  Sets trimmed line to l->processedLineStart and l->processedLineEnd
@@ -17,13 +38,7 @@
 static void processLine(line *l) {
     assert(l != NULL);
 
-    char *lineStart = l->originalLine;
-
-    while(isspace(*lineStart) || ispunct(*lineStart)) {
-        if (*lineStart == '\n')
-            break;
-        ++lineStart;
-    }
+    const char *lineStart = skipSpPunctStart(l->originalLine);
 
     if (*lineStart  == '\n') {
         l->originalLine = NULL;
@@ -34,11 +49,7 @@ static void processLine(line *l) {
 
     l->processedLineStart = lineStart;
 
-    char *lineEnd = strchr(lineStart, '\n');
-    while (isspace(*lineEnd) || ispunct(*lineEnd))
-        --lineEnd;
-
-    l->processedLineEnd = lineEnd;
+    l->processedLineEnd = skipSpPunctEnd(strchr(lineStart, '\n'));
 }
 
 

@@ -24,9 +24,9 @@ typedef enum textError textError;
  */
 struct line
 {
-    char    *processedLineStart;   // Line with trmmed trailing spaces and punctuation.
-    char    *processedLineEnd;     // Pointer to last char of processed line
-    char    *originalLine;         // Line that was read from file. free() should be called on this one.
+    const char      *processedLineStart;   // Line with trmmed trailing spaces and punctuation.
+    const char      *processedLineEnd;     // Pointer to last char of processed line
+    char            *originalLine;         // Line that was read from file. free() should be called on this one.
 };
 
 typedef struct line line;
@@ -84,6 +84,11 @@ void printError(textError err);
  * @brief Frees used memory
  */
 void freeText(text *t);
+
+
+const char *skipSpPunctStart(const char *lineStart);
+
+const char *skipSpPunctEnd(const char *lineEnd);
 
 
 #endif
