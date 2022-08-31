@@ -54,10 +54,9 @@ static void my_qsort(void *base, size_t nel, size_t width, int (*compar)(const v
         if (i < j)
             swap(&baseB[width * j--], &baseB[width * i++], width);
     }
-    swap(pivot, &baseB[width * j], width);
 
-    qsort(baseB, j, width, compar);
-    qsort(baseB + width * (j + 1), nel - j - 1 , width, compar);
+    qsort(baseB, i, width, compar);
+    qsort(baseB + width * i, nel - i, width, compar);
 }
 
 
