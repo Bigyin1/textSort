@@ -51,12 +51,18 @@ static void my_qsort(void *base, size_t nel, size_t width, int (*compar)(const v
         while (i <= j && compar(&baseB[width * j], pivot) > 0)
             --j;
 
-        if (i < j)
+        if (i < j) {
+            if (&baseB[width * j] == pivot)
+                pivot = &baseB[width * i];
+
             swap(&baseB[width * j--], &baseB[width * i++], width);
+        }
     }
 
-    qsort(baseB, i, width, compar);
-    qsort(baseB + width * i, nel - i, width, compar);
+    swap(pivot, &baseB[width * j], width);
+
+    qsort(baseB, j, width, compar);
+    qsort(baseB + width * (j + 1), nel - j - 1 , width, compar);
 }
 
 
