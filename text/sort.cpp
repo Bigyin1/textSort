@@ -33,36 +33,41 @@ static void swap(void *m1, void *m2, size_t width) {
     }
 }
 
+
+/**
+ * @brief QuickSort implementation.
+ * Middle element taken as a pivot.
+ */
 static void my_qsort(void *base, size_t nel, size_t width, int (*compar)(const void *, const void *)) {
     assert(base != NULL && compar != NULL && width != 0);
 
     if (nel <= 1)
         return;
 
-    char *baseB = (char *)base;
+    char *baseBytePtr = (char *)base;
 
-    void *pivot = &baseB[(nel >> 1) * width];
+    void *pivot = &baseBytePtr[(nel >> 1) * width];
 
     size_t i = 0;
     size_t j = nel - 1;
     while (i < j) {
-        while (i <= j && compar(pivot, &baseB[width * i]) >= 0)
+        while (i <= j && compar(pivot, &baseBytePtr[width * i]) >= 0)
             ++i;
-        while (i <= j && compar(&baseB[width * j], pivot) > 0)
+        while (i <= j && compar(&baseBytePtr[width * j], pivot) > 0)
             --j;
 
         if (i < j) {
-            if (&baseB[width * j] == pivot)
-                pivot = &baseB[width * i];
+            if (&baseBytePtr[width * j] == pivot)
+                pivot = &baseBytePtr[width * i];
 
-            swap(&baseB[width * j--], &baseB[width * i++], width);
+            swap(&baseBytePtr[width * j--], &baseBytePtr[width * i++], width);
         }
     }
 
-    swap(pivot, &baseB[width * j], width);
+    swap(pivot, &baseBytePtr[width * j], width);
 
-    qsort(baseB, j, width, compar);
-    qsort(baseB + width * (j + 1), nel - j - 1 , width, compar);
+    qsort(baseBytePtr, j, width, compar);
+    qsort(baseBytePtr + width * (j + 1), nel - j - 1 , width, compar);
 }
 
 
@@ -78,8 +83,8 @@ static int cmpLines(const void *l1, const void *l2) {
 
     while (line1Start != line1End && line2Start != line2End) {
 
-        line1Start = skipSpPunctStart(line1Start);
-        line2Start = skipSpPunctStart(line2Start);
+        line1Start = skipSpacesPunctStart(line1Start);
+        line2Start = skipSpacesPunctStart(line2Start);
 
         if (*line1Start != *line2Start)
             return (*line1Start - *line2Start);
@@ -108,8 +113,8 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
 
     while (line1End != line1Start && line2End != line2Start) {
 
-        line1End = skipSpPunctEnd(line1End);
-        line2End = skipSpPunctEnd(line2End);
+        line1End = skipSpacesPunctEnd(line1End);
+        line2End = skipSpacesPunctEnd(line2End);
 
         if (*line1End != *line2End)
             return (*line1End - *line2End);
@@ -128,13 +133,13 @@ static int cmpLinesReverse(const void *l1, const void *l2) {
 }
 
 
-void sortTextDirect(text *t) {
+void sortTextDirect(const text *t) {
 
      my_qsort(t->textLines, t->linesCount, sizeof(line), cmpLines);
 
 }
 
-void sortTextReverse(text *t) {
+void sortTextReverse(const text *t) {
 
     my_qsort(t->textLines, t->linesCount, sizeof(line), cmpLinesReverse);
 

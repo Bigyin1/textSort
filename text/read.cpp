@@ -9,7 +9,7 @@
 #include "text.hpp"
 
 
-const char *skipSpPunctStart(const char *lineStart) {
+const char *skipSpacesPunctStart(const char *lineStart) {
     assert(lineStart != NULL);
 
     while(isspace(*lineStart) || ispunct(*lineStart)) {
@@ -21,10 +21,10 @@ const char *skipSpPunctStart(const char *lineStart) {
     return lineStart;
 }
 
-const char *skipSpPunctEnd(const char *lineEnd) {
+const char *skipSpacesPunctEnd(const char *lineEnd) {
     assert(lineEnd != NULL);
 
-    while (isspace(*lineEnd) || ispunct(*lineEnd))
+    while (isblank(*lineEnd) || ispunct(*lineEnd))
         --lineEnd;
 
     return lineEnd;
@@ -38,7 +38,7 @@ const char *skipSpPunctEnd(const char *lineEnd) {
 static void processLine(line *l) {
     assert(l != NULL);
 
-    const char *lineStart = skipSpPunctStart(l->originalLine);
+    const char *lineStart = skipSpacesPunctStart(l->originalLine);
 
     if (*lineStart  == '\n') {
         l->originalLine = NULL;
@@ -49,7 +49,7 @@ static void processLine(line *l) {
 
     l->processedLineStart = lineStart;
 
-    l->processedLineEnd = skipSpPunctEnd(strchr(lineStart, '\n'));
+    l->processedLineEnd = skipSpacesPunctEnd(strchr(lineStart, '\n') - 1);
 }
 
 
