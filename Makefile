@@ -54,10 +54,12 @@ $(shell mkdir -p $(OBJ_DIRS))
 .PHONY: all
 all: $(BUILD_DIR)/$(EXECUTABLE) $(DOCS_DIR)
 
+.PHONY: test
+test: $(BUILD_DIR)/$(EXECUTABLE)
+	$(BUILD_DIR)/$(EXECUTABLE) ./testdata/hamlet/textInitial ./testOut.txt
 
 .PHONY: bin
 bin: $(BUILD_DIR)/$(EXECUTABLE)
-
 
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJS)
