@@ -4,7 +4,13 @@ DOXYGEN = doxygen
 EXECUTABLE = bin
 
 
-SRCS = main.cpp
+SRCS = 	main.cpp \
+		text/read.cpp \
+		text/write.cpp \
+		text/sort.cpp \
+		text/free.cpp \
+		text/error.cpp
+
 
 INCLUDES =
 
@@ -48,10 +54,12 @@ $(shell mkdir -p $(OBJ_DIRS))
 .PHONY: all
 all: $(BUILD_DIR)/$(EXECUTABLE) $(DOCS_DIR)
 
+.PHONY: test
+test: $(BUILD_DIR)/$(EXECUTABLE)
+	$(BUILD_DIR)/$(EXECUTABLE) ./testdata/hamlet/textInitial ./testOut.txt
 
 .PHONY: bin
 bin: $(BUILD_DIR)/$(EXECUTABLE)
-
 
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJS)
